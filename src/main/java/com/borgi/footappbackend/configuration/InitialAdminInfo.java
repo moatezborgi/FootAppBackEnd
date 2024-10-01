@@ -1,9 +1,11 @@
 package com.borgi.footappbackend.configuration;
 
+import com.borgi.footappbackend.entities.player.Position;
 import com.borgi.footappbackend.entities.shared.Nationality;
 import com.borgi.footappbackend.entities.user.UserRefrence;
 import com.borgi.footappbackend.entities.user.UserRole;
 import com.borgi.footappbackend.entities.user.UserRolePermission;
+import com.borgi.footappbackend.repositories.playerrepositories.PositionRepository;
 import com.borgi.footappbackend.repositories.sharedrepository.NationalityRepository;
 import com.borgi.footappbackend.repositories.userrepositories.UserRepository;
 import com.borgi.footappbackend.repositories.userrepositories.UserRolePermissionRepository;
@@ -27,6 +29,7 @@ public class InitialAdminInfo implements CommandLineRunner {
     private final PasswordEncoder passwordEncoder;
     private final UserRolePermissionRepository rolePermissionRepository;
     private final NationalityRepository nationalityRepository;
+    private final PositionRepository positionRepository;
     @Override
     public void run(String... args) throws Exception {
         UserRole userRole = new UserRole();
@@ -91,7 +94,22 @@ public class InitialAdminInfo implements CommandLineRunner {
             userRoleRepository.save(userRole);
 
         }
+            if(positionRepository.findAll().size()==0)
+            {
+                positionRepository.saveAll(List.of(
+                        new Position(1, "Gardien de but"),
+                        new Position(2, "Arrière droit"),
+                        new Position(3, "Défenseur central"),
+                        new Position(4, "Arrière gauche"),
+                        new Position(5, "Milieu défensif"),
+                        new Position(6, "Milieu central"),
+                        new Position(7, "Milieu offensif"),
+                        new Position(8, "Ailier droit"),
+                        new Position(9, "Ailier gauche"),
+                        new Position(10, "Attaquant")
+                ));
 
+            }
         // Vérifiez si la table des nationalités est vide
         if(nationalityRepository.findAll().size() == 0) {
             // Insertion des nationalités
@@ -281,6 +299,7 @@ public class InitialAdminInfo implements CommandLineRunner {
                     new Nationality(183, "Zimbabwe")
             ));
         }
+
 
     }
 }

@@ -21,5 +21,12 @@ public class Position implements Serializable {
     @OneToMany(mappedBy = "position")
     private List<Player> players;
 
+    // Constructeur
+    public Position(int positionId, String positionName) {
+        this.positionId = positionId;
+        this.positionName = positionName;
+    }
+
+
 
 }

@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: footappDb
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  springboot:
+    build: .
+    image: springboot_app:1.0.0  # Specify the image name and tag
+    container_name: springboot_app
+    restart: always
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql_db:3306/footappDb
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: root
+    ports:
+      - "9090:9090"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  angular:
+    build: ../footApp-FrontEnd
+    image: angular_app:1.0.0  # Specify the image name and tag
+    container_name: angular_app
+    restart: always
+    ports:
+      - "4201:4200"
+    depends_on:
+      springboot:
+        condition: service_started
+    networks:
+      - app-network
+
+  vuejs:
+    build: ../frontoffice  # Ensure this points to the correct Dockerfile for the Vue.js app
+    image: vuejs_app:1.0.0  # Specify the image name and tag
+    container_name: vuejs_app
+    restart: always
+    ports:
+      - "8080:80"  # Nginx serving the Vue.js application
+      - "3000:3000"
+    depends_on:
+      springboot:
+        condition: service_started
+    networks:
+      - app-network
+
+
+volumes:
+  db_data:
+
+networks:
+  app-network:
+    driver: bridge
